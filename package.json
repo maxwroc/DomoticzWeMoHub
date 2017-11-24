@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/maxwroc/DomoticzWeMoHub/issues"
   },
-  "homepage": "https://github.com/maxwroc/DomoticzWeMoHub#readme"
+  "homepage": "https://github.com/maxwroc/DomoticzWeMoHub#readme",
+  "devDependencies": {
+    "fauxmojs": "^1.0.1"
+  }
 }
