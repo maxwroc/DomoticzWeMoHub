@@ -1,0 +1,27 @@
+{
+  "name": "domoticz-wemo-hub",
+  "version": "0.1.1",
+  "description": "WeMo virtual hub exposing devices from Domoticz",
+  "main": "service.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxwroc/DomoticzWeMoHub.git"
+  },
+  "keywords": [
+    "domoticz",
+    "wemo",
+    "hub",
+    "alexa",
+    "amazon",
+    "echo"
+  ],
+  "author": "Maks",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/maxwroc/DomoticzWeMoHub/issues"
+  },
+  "homepage": "https://github.com/maxwroc/DomoticzWeMoHub#readme"
+}
