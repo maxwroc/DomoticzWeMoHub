@@ -1,4 +1,4 @@
-# DomoticzWeMoHub (Amazon Echo/Alexa support for Domoticz)
+## DomoticzWeMoHub (Amazon Echo/Alexa support for Domoticz)
 WeMo virtual hub exposing devices from Domoticz.
 
 WeMo devices are nativelly supported by **Amazon Echo** so if you have Echo you can easily **control your Domoticz switches**.
