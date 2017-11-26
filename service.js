@@ -1,80 +1,69 @@
 "use strict";
 
-const http = require("http");
-const fauxMo = require("fauxmojs");
+const FauxMo = require("./fixed_modules/fauxmojs");
+const Domoticz = require("./modules/domoticz");
 
-const domoticz_ip = "192.168.2.103";
-const domoticz_port = 8080;
-
-function getJsonData(url, onSuccess) {
-  var options = {
-    hostname: domoticz_ip,
-    port: domoticz_port,
-    path: url,
-    method: "GET",
-    headers: { "Content-Type": "application/json" }
-  };
-
-  var req = http.request(options, function(res) {
-    res.setEncoding("utf8");
-
-    var data = "";
-    res.on("data", function (chunk) {
-      data += chunk;
-    });
-
-    res.on("end", function () {
-      try {
-        if (data) {
-          var json = JSON.parse(data);
-          onSuccess(json);
-        }
-      }
-      catch (e) {
-        console.log("Failed to parse response from: " + url + " \r\nError: " + e.message);
-      }
-    });
-  });
-  req.on("error", function(e) {
-    console.log("Failed to send request: " + e.message);
-  });
-  req.end();
+// default values which can be overridden by args
+const config = {
+    host: "localhost", // domoticz host
+    port: 8080, // domoticz port
+    devices: null,
+    devicePort: 11856
 }
 
 
-getJsonData("/json.htm?type=devices&filter=light&used=true&order=Name", response => {
-  if (response) {
-    response.result.forEach(d => {
-      console.log(d.Name);
+// override default settings based on given agrs
+let args = process.argv.slice(2);
+for (let i = 0, arg; arg = args[i]; i++) {
+    if (arg[0] == "-" && typeof config[arg.substr(1)] != "undefined") {
+        config[arg.substr(1)] = args[++i];
+    }
+}
+
+
+let domoticz = new Domoticz({ host: config.host, port: config.port });
+domoticz.getDevices(devices => {
+    if (devices) {
+
+        let deviceIdxList = config.devices && config.devices.split(",");
+        console.log(deviceIdxList);
+        if (deviceIdxList && deviceIdxList.length) {
+            let fauxmoDevices = devices.filter(d =>
+                    deviceIdxList && deviceIdxList.length ? deviceIdxList.indexOf(d.idx) != -1 : true
+                )
+                .map(d => {
+                    return {
+                        name: d.Name,
+                        port: config.devicePort++,
+                        handler: (action) => {
+                            action == "on" ? domoticz.switchOn(d.idx) : domoticz.switchOff(d.idx);
+                        }
+                    }
+                });
+
+            if (fauxmoDevices.length) {
+                let fauxMo = new FauxMo(
+                    {
+                        ipAddress: config.host,
+                        devices: fauxmoDevices
+                    }
+                );
+            }
+        }
+        else {
+            printDevices(devices);
+        }
+    }
+    else {
+        console.log("Devices not found");
+    }
+}, "light");
+
+
+
+
+function printDevices(devices) {
+    devices.forEach(device => {
+        console.log("Id: " + device.idx + "\t  " + device.Name);
     });
-  }
-});
-
-
-
-/*
-let fauxMo = new fauxMo(
-  {
-    ipAddress: "192.168.2.103",
-    devices: [
-      {
-        name: "office light",
-        port: 11856,
-        handler: (action) => {
-          console.log("office light action:", action);
-        }
-      },
-      {
-        name: "office fan",
-        port: 11857,
-        handler: (action) => {
-          console.log("office fan action:", action);
-        }
-      }
-    ]
-  }
-);
-
-console.log("started..");
-
-/** */
+}
