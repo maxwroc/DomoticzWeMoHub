@@ -1,10 +1,12 @@
+#!/usr/bin/env node
 "use strict";
 
-//process.env.DEBUG = '*,-not_this';
-
+const fs = require("fs");
 const FauxMo = require("./fixed_modules/fauxmojs");
 const Domoticz = require("./modules/domoticz");
 const debug = require('debug')('service');
+
+const configFile = "config.json";
 
 // default values which can be overridden by args
 const config = {
@@ -14,11 +16,27 @@ const config = {
     devicePort: 11856
 }
 
-// override default settings based on given agrs
-let args = process.argv.slice(2);
-for (let i = 0, arg; arg = args[i]; i++) {
-    if (arg[0] == "-" && typeof config[arg.substr(1)] != "undefined") {
-        config[arg.substr(1)] = args[++i];
+if (fs.existsSync(configFile)) {
+    try {
+        var jsonContent = JSON.parse(fs.readFileSync(configFile));
+        Object.keys(jsonContent).forEach(name => {
+            if (typeof config[name] != "undefined") {
+                config[name] = jsonContent[name];
+            }
+        });
+    }
+    catch(e) {
+        console.error("Failed to parse config file: " + e.message);
+        return;
+    }
+}
+else {
+    // override default settings based on given agrs
+    let args = process.argv.slice(2);
+    for (let i = 0, arg; arg = args[i]; i++) {
+        if (arg[0] == "-" && typeof config[arg.substr(1)] != "undefined") {
+            config[arg.substr(1)] = args[++i];
+        }
     }
 }
 
@@ -66,4 +84,6 @@ function printDevices(devices) {
     devices.forEach(device => {
         console.log("Id: " + device.idx + "\t  " + device.Name);
     });
+    console.log("Use -devices param to pass comma separated list of device ids");
 }
+

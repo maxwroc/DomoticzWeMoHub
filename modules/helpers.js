@@ -22,6 +22,10 @@ function getJsonData(url, callback) {
                 callback(json);
             }
         }
+        else {
+            console.log("[getJsonData] " + url);
+            console.log("[getJsonData] Response: " + response.statusCode + " " + response.statusMessage);
+        }
     });
 }
 module.exports = {
