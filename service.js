@@ -2,11 +2,13 @@
 "use strict";
 
 const fs = require("fs");
+const path = require("path");
 const FauxMo = require("./fixed_modules/fauxmojs");
 const Domoticz = require("./modules/domoticz");
-const debug = require('debug')('service');
+const debug = require("debug")("service");
 
-const configFile = "config.json";
+const configFileName = "config.json";
+const configFile = path.resolve(__dirname, configFileName);
 
 // default values which can be overridden by args
 const config = {
